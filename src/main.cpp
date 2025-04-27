@@ -5,7 +5,7 @@ int main()
     constexpr int screenWidth = 800;
     constexpr int screenHeight = 450;
 
-    raylib::Window window(screenWidth, screenHeight, "Dino");
+    raylib::Window window(screenWidth, screenHeight, "Dino Run");
     window.SetState(FLAG_VSYNC_HINT);
     window.SetTargetFPS(60);
 
@@ -19,7 +19,7 @@ int main()
         window.BeginDrawing();
         window.ClearBackground(RAYWHITE);
 
-        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+        raylib::DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
 
         window.EndDrawing();
     }
