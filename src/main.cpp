@@ -1,4 +1,5 @@
-﻿#include "raylib-cpp.hpp"
+﻿#include "game/DinoGame.h"
+#include <raylib-cpp.hpp>
 
 int main()
 {
@@ -9,22 +10,13 @@ int main()
     window.SetState(FLAG_VSYNC_HINT);
     window.SetTargetFPS(60);
 
-    // Load game
+    DinoGame game;
 
-    while (!WindowShouldClose())
+    while (!window.ShouldClose() && !game.ShouldClose())
     {
-        // Update game
-
-        // Draw game
-        window.BeginDrawing();
-        window.ClearBackground(RAYWHITE);
-
-        raylib::DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-        window.EndDrawing();
+        game.UpdateGame(window.GetFrameTime());
+        game.DrawGame(window);
     }
-
-    // Unload game
 
     return 0;
 }

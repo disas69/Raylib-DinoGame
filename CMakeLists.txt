@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.30)
 
 set(CMAKE_CXX_STANDARD 17)
-set(PROJECT_NAME RaylibTemplate)
+set(PROJECT_NAME DinoRun)
 project(${PROJECT_NAME})
 
 # raylib-cpp
@@ -22,7 +22,8 @@ endif()
 set(RAYLIB_PATH ${PROJECT_SOURCE_DIR}/raylib)
 include_directories(${RAYLIB_PATH}/include include)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp
+        src/game/DinoGame.cpp)
 
 if (WIN32)
     link_directories(${RAYLIB_PATH}/lib/win)
