@@ -5,15 +5,8 @@
 class DinoGame : public framework::GameBase
 {
 public:
-    DinoGame()
-    {
-        Load();
-    }
-
-    ~DinoGame() override
-    {
-        Unload();
-    }
+    DinoGame() { Load(); }
+    ~DinoGame() override { Unload(); }
 
     void UpdateGame(float deltaTime) override;
     void DrawGame(raylib::Window& window) override;

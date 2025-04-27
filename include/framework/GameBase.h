@@ -21,11 +21,8 @@ public:
     void SetShouldClose(bool shouldClose) { m_shouldClose = shouldClose; }
 
 protected:
-
     float m_screenWidth = 0;
     float m_screenHeight = 0;
     bool m_shouldClose = false;
 };
-}
-
-
+}  // namespace framework
