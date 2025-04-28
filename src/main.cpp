@@ -3,8 +3,8 @@
 
 int main()
 {
-    constexpr int screenWidth = 800;
-    constexpr int screenHeight = 450;
+    constexpr int screenWidth = 900;
+    constexpr int screenHeight = 400;
 
     raylib::Window window(screenWidth, screenHeight, "Dino Run");
     window.SetState(FLAG_VSYNC_HINT);

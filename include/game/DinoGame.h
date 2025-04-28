@@ -14,4 +14,10 @@ public:
 private:
     void Load();
     void Unload();
+
+    raylib::Texture m_dinoTexture;
+    raylib::Texture m_obstacleTexture;
+    raylib::Texture m_groundTexture;
+
+    float m_groundOffset = 60;
 };
