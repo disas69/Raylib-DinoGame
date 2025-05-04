@@ -1,4 +1,4 @@
-﻿#include "game/DinoGame.h"
+﻿#include "game/Game.h"
 #include <raylib-cpp.hpp>
 
 int main()
@@ -10,8 +10,7 @@ int main()
     window.SetState(FLAG_VSYNC_HINT);
     window.SetTargetFPS(60);
 
-    DinoGame game;
-
+    Game game;
     while (!window.ShouldClose() && !game.ShouldClose())
     {
         game.UpdateGame(window.GetFrameTime());
