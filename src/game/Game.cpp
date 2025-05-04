@@ -12,11 +12,11 @@ void Game::Initialize()
     m_screenWidth = GetScreenWidth();
     m_screenHeight = GetScreenHeight();
 
-    // Load json config and apply settings
+    // Load json and apply settings
     m_gameSettings = GameSettings();
 
     // Init components
-    m_camera.SetOffset({m_screenWidth / 2.0f - m_cameraXOffset, m_screenHeight / 2.0f});
+    m_camera.SetOffset({m_screenWidth / 2.0f - m_cameraXOffset, m_screenHeight / 2.0f - m_cameraYOffset});
     m_camera.SetRotation(0.f);
     m_camera.SetZoom(0.8f);
 
@@ -33,7 +33,8 @@ void Game::Initialize()
     for (int i = 0; i < GameConfig::OBSTACLE_POOL_SIZE; ++i)
     {
         m_obstacles[i] = std::make_unique<SpriteObject>(&m_obstacleTexture);
-        m_obstacles[i]->SetPosition({600.0f + i * 200, m_screenHeight - m_obstacleTexture.GetHeight() - m_groundOffset});
+        m_obstacles[i]->SetActive(false);
+        // m_obstacles[i]->SetPosition({600.0f + i * 200, m_screenHeight - m_obstacleTexture.GetHeight() - m_groundOffset});
     }
 
     m_grounds = std::vector<std::unique_ptr<SpriteObject>>(GameConfig::GROUND_POOL_SIZE);
@@ -52,17 +53,11 @@ void Game::Initialize()
 
 void Game::UpdateGame(float deltaTime)
 {
-    float speed = m_gameSettings.PlayerSettings.MovementSpeed;
+    HandleInput();
+    UpdatePlayerJump(deltaTime);
 
-    // Handle input
-    if (IsKeyDown(KEY_RIGHT))
-    {
-        m_player->SetPosition({m_player->GetPosition().x + speed * deltaTime, m_player->GetPosition().y});
-    }
-    else if (IsKeyDown(KEY_LEFT))
-    {
-        m_player->SetPosition({m_player->GetPosition().x - speed * deltaTime, m_player->GetPosition().y});
-    }
+    const float speed = m_gameSettings.PlayerSettings.MovementSpeed;
+    m_player->SetPosition({m_player->GetPosition().x + speed * deltaTime, m_player->GetPosition().y});
 
     // Update player, update animations
     Vector2 playerPos = m_player->GetPosition();
@@ -76,14 +71,18 @@ void Game::UpdateGame(float deltaTime)
         nextGround->SetPosition({currentGround->GetPosition().x + currentGround->GetRectangle().width, m_screenHeight - m_groundTexture.GetHeight() - m_groundOffset});
     }
 
-    // Update obstacles position
+    // Activate and update obstacles position based on total distance passed
+    // Deactivate passed obstacles
+    // Update score
 
     // Check collisions
 
     // Update game state
 
     // Update camera
-    m_camera.SetTarget(playerPos);
+    const float groundPos = m_screenHeight - m_dinoTexture.GetHeight() - m_groundOffset;
+    const Vector2 camFollowPos = {playerPos.x, groundPos};
+    m_camera.SetTarget(camFollowPos);
 }
 
 void Game::DrawGame(raylib::Window& window)
@@ -121,4 +120,55 @@ void Game::Dispose()
     m_dinoTexture.Unload();
     m_obstacleTexture.Unload();
     m_groundTexture.Unload();
+}
+
+void Game::HandleInput()
+{
+    // TODO: Set input value based on time when the key is down, clamp to 0.5 - 1.0
+
+    if (IsKeyDown(KEY_SPACE))
+    {
+        if (m_jumping || m_inAir)
+        {
+            return;
+        }
+
+        m_jumping = true;
+        m_inAir = true;
+    }
+}
+
+void Game::UpdatePlayerJump(float deltaTime)
+{
+    // TODO: Use lerp with easing instead, scale jump height based on input value
+
+    float groundPos = m_screenHeight - m_dinoTexture.GetHeight() - m_groundOffset;
+    float jumpSpeed = m_gameSettings.PlayerSettings.JumpSpeed;
+
+    if (m_jumping)
+    {
+        float targetPos = groundPos - m_gameSettings.PlayerSettings.JumpHeight;
+
+        if (m_player->GetPosition().y > targetPos)
+        {
+            m_player->SetPosition({m_player->GetPosition().x, m_player->GetPosition().y - jumpSpeed * deltaTime});
+        }
+        else
+        {
+            m_player->SetPosition({m_player->GetPosition().x, targetPos});
+            m_jumping = false;
+        }
+    }
+    else if (m_inAir)
+    {
+        if (m_player->GetPosition().y < groundPos)
+        {
+            m_player->SetPosition({m_player->GetPosition().x, m_player->GetPosition().y + jumpSpeed * deltaTime});
+        }
+        else
+        {
+            m_player->SetPosition({m_player->GetPosition().x, groundPos});
+            m_inAir = false;
+        }
+    }
 }
