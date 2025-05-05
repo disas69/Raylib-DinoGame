@@ -1,4 +1,5 @@
 ﻿#include "game/Game.h"
+#include "misc/easing.h"
 
 namespace GameConfig
 {
