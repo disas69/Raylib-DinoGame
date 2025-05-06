@@ -55,7 +55,7 @@ void Game::Initialize()
 void Game::UpdateGame(float deltaTime)
 {
     HandleInput();
-    UpdatePlayerJump(deltaTime);
+    UpdatePlayerJump();
 
     const float speed = m_gameSettings.PlayerSettings.MovementSpeed;
     m_player->SetPosition({m_player->GetPosition().x + speed * deltaTime, m_player->GetPosition().y});
@@ -126,50 +126,47 @@ void Game::Dispose()
 void Game::HandleInput()
 {
     // TODO: Set input value based on time when the key is down, clamp to 0.5 - 1.0
-
     if (IsKeyDown(KEY_SPACE))
     {
-        if (m_jumping || m_inAir)
+        if (m_jumping)
         {
             return;
         }
 
+        m_jumpStartTime = GetTime();
         m_jumping = true;
-        m_inAir = true;
     }
 }
 
-void Game::UpdatePlayerJump(float deltaTime)
+void Game::UpdatePlayerJump()
 {
-    // TODO: Use lerp with easing instead, scale jump height based on input value
-
-    float groundPos = m_screenHeight - m_dinoTexture.GetHeight() - m_groundOffset;
-    float jumpSpeed = m_gameSettings.PlayerSettings.JumpSpeed;
-
-    if (m_jumping)
+    if (!m_jumping)
     {
-        float targetPos = groundPos - m_gameSettings.PlayerSettings.JumpHeight;
-
-        if (m_player->GetPosition().y > targetPos)
-        {
-            m_player->SetPosition({m_player->GetPosition().x, m_player->GetPosition().y - jumpSpeed * deltaTime});
-        }
-        else
-        {
-            m_player->SetPosition({m_player->GetPosition().x, targetPos});
-            m_jumping = false;
-        }
+        return;
     }
-    else if (m_inAir)
+
+    const float groundPos = m_screenHeight - m_dinoTexture.GetHeight() - m_groundOffset;
+    const float jumpDuration = m_gameSettings.PlayerSettings.JumpDuration;
+
+    const float elapsedTime = GetTime() - m_jumpStartTime;
+    const float t = Clamp(elapsedTime / jumpDuration, 0.0f, 1.0f);
+    if (t < 0.5f)
     {
-        if (m_player->GetPosition().y < groundPos)
-        {
-            m_player->SetPosition({m_player->GetPosition().x, m_player->GetPosition().y + jumpSpeed * deltaTime});
-        }
-        else
-        {
-            m_player->SetPosition({m_player->GetPosition().x, groundPos});
-            m_inAir = false;
-        }
+        const float targetPos = groundPos - m_gameSettings.PlayerSettings.JumpHeightMax;
+        const float t1 = Remap(t, 0.0, 0.5f, 0.06f, 1.0f);
+        const float lerpPos = Lerp(groundPos, targetPos, easeOutQuad(t1));
+        m_player->SetPosition({m_player->GetPosition().x, lerpPos});
+    }
+    else if (t < 1.0f)
+    {
+        const float startPos = groundPos - m_gameSettings.PlayerSettings.JumpHeightMax;
+        const float t2 = Remap(t, 0.5f, 1.0f, 0.0f, 1.0f);
+        const float lerpPos = Lerp(startPos, groundPos, easeInQuad(t2));
+        m_player->SetPosition({m_player->GetPosition().x, lerpPos});
+    }
+    else
+    {
+        m_player->SetPosition({m_player->GetPosition().x, groundPos});
+        m_jumping = false;
     }
 }

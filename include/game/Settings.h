@@ -3,8 +3,9 @@
 struct PlayerSettings
 {
     float MovementSpeed = 650.f;
-    float JumpSpeed = 800.f;
-    float JumpHeight = 250.f;
+    float JumpDuration = 0.575f;
+    float JumpHeightMin = 100.f;
+    float JumpHeightMax = 200.f;
 };
 
 struct GameSettings

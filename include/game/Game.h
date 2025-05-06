@@ -20,7 +20,7 @@ private:
     void Dispose();
 
     void HandleInput();
-    void UpdatePlayerJump(float deltaTime);
+    void UpdatePlayerJump();
 
     raylib::Camera2D m_camera;
 
@@ -39,10 +39,10 @@ private:
     int m_groundIndex = 0;
 
     float m_playerStartOffset = 150.0f;
-    float m_cameraXOffset = 400.0f;
+    float m_cameraXOffset = 380.0f;
     float m_cameraYOffset = -30.0f;
     float m_groundOffset = 50.0f;
 
+    float m_jumpStartTime = 0.0f;
     bool m_jumping = false;
-    bool m_inAir = false;
 };
