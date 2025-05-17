@@ -11,9 +11,24 @@ public:
     explicit SpriteObject(raylib::Texture* texture) : m_texture(texture) {}
     explicit SpriteObject(raylib::Texture* texture, const Vector2& position) : GameObject2D(position), m_texture(texture) {}
 
+    raylib::Texture* GetTexture() const
+    {
+        return m_texture;
+    }
+
     void SetTexture(raylib::Texture* texture)
     {
         m_texture = texture;
+    }
+
+    int GetWidth() const
+    {
+        return m_texture->GetWidth();
+    }
+
+    int GetHeight() const
+    {
+        return m_texture->GetHeight();
     }
 
     void Draw() const override

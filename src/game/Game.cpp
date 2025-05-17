@@ -9,47 +9,50 @@ int GROUND_POOL_SIZE = 2;
 
 void Game::Initialize()
 {
-    // Init variables
+    // Load resources
+    m_assetManager.LoadAssets();
+
     m_screenWidth = GetScreenWidth();
     m_screenHeight = GetScreenHeight();
 
-    // Load json and apply settings
+    // TODO: Load json and apply settings
     m_gameSettings = GameSettings();
 
-    // Init components
+    // Create game objects
     m_camera.SetOffset({m_screenWidth / 2.0f - m_cameraXOffset, m_screenHeight / 2.0f - m_cameraYOffset});
     m_camera.SetRotation(0.f);
     m_camera.SetZoom(0.8f);
 
-    // Load resources
-    m_dinoTexture = raylib::Texture("resources/sprites/Dino_Idle.png");
-    m_obstacleTexture = raylib::Texture("resources/sprites/Cactus_Small_Single.png");
-    m_groundTexture = raylib::Texture("resources/sprites/Ground.png");
-
-    // Create game objects
-    m_player = std::make_unique<SpriteObject>(&m_dinoTexture);
-    m_player->SetPosition({m_playerStartOffset, m_screenHeight - m_dinoTexture.GetHeight() - m_groundOffset});
+    m_player = std::make_unique<Player>(m_assetManager.GetTexture("dino"), &m_assetManager);
+    m_player->SetPosition({m_playerStartOffset, m_screenHeight - m_player->GetHeight() - m_groundOffset});
+    m_player->SetState(PlayerState::Run);
 
     m_obstacles = std::vector<std::unique_ptr<SpriteObject>>(GameConfig::OBSTACLE_POOL_SIZE);
     for (int i = 0; i < GameConfig::OBSTACLE_POOL_SIZE; ++i)
     {
-        m_obstacles[i] = std::make_unique<SpriteObject>(&m_obstacleTexture);
+        m_obstacles[i] = std::make_unique<SpriteObject>(m_assetManager.GetTexture("cactus"));
         m_obstacles[i]->SetActive(false);
-        // m_obstacles[i]->SetPosition({600.0f + i * 200, m_screenHeight - m_obstacleTexture.GetHeight() - m_groundOffset});
     }
 
     m_grounds = std::vector<std::unique_ptr<SpriteObject>>(GameConfig::GROUND_POOL_SIZE);
     for (int i = 0; i < GameConfig::GROUND_POOL_SIZE; ++i)
     {
-        m_grounds[i] = std::make_unique<SpriteObject>(&m_groundTexture);
-        m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_groundTexture.GetHeight() - m_groundOffset});
+        m_grounds[i] = std::make_unique<SpriteObject>(m_assetManager.GetTexture("ground"));
+        m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_grounds[i]->GetHeight() - m_groundOffset});
     }
 
-    // Load best score from json
+    // TODO: Load best score from json
+    // TODO: Init game state
+    // TODO: Init UI and open start screen
+}
 
-    // Init game state
+void Game::Dispose()
+{
+    // TODO: Save best score to json
+    // TODO: Destroy objects
 
-    // Init UI and open start screen
+    // Unload resources
+    m_assetManager.UnloadAssets();
 }
 
 void Game::UpdateGame(float deltaTime)
@@ -57,31 +60,31 @@ void Game::UpdateGame(float deltaTime)
     HandleInput();
     UpdatePlayerJump();
 
+    // Update game objects
     const float speed = m_gameSettings.PlayerSettings.MovementSpeed;
     m_player->SetPosition({m_player->GetPosition().x + speed * deltaTime, m_player->GetPosition().y});
 
-    // Update player, update animations
     Vector2 playerPos = m_player->GetPosition();
-
-    // Update ground position
     auto& currentGround = m_grounds[m_groundIndex];
     if (currentGround->GetPosition().x < playerPos.x - m_playerStartOffset)
     {
         m_groundIndex = (m_groundIndex + 1) % GameConfig::GROUND_POOL_SIZE;
         auto& nextGround = m_grounds[m_groundIndex];
-        nextGround->SetPosition({currentGround->GetPosition().x + currentGround->GetRectangle().width, m_screenHeight - m_groundTexture.GetHeight() - m_groundOffset});
+        nextGround->SetPosition({currentGround->GetPosition().x + currentGround->GetRectangle().width, m_screenHeight - nextGround->GetHeight() - m_groundOffset});
     }
 
-    // Activate and update obstacles position based on total distance passed
-    // Deactivate passed obstacles
-    // Update score
+    // TODO: Activate and update obstacles position based on total distance passed
+    // TODO: Deactivate passed obstacles
 
-    // Check collisions
+    // TODO: Check collisions
 
-    // Update game state
+    // Update states and animations
+    m_player->Update(deltaTime);
+
+    // TODO: Update score
 
     // Update camera
-    const float groundPos = m_screenHeight - m_dinoTexture.GetHeight() - m_groundOffset;
+    const float groundPos = m_screenHeight - m_player->GetHeight() - m_groundOffset;
     const Vector2 camFollowPos = {playerPos.x, groundPos};
     m_camera.SetTarget(camFollowPos);
 }
@@ -106,26 +109,13 @@ void Game::DrawGame(raylib::Window& window)
     m_player->Draw();
     m_camera.EndMode();
 
-    // Draw UI
+    // TODO: Draw UI
 
     window.EndDrawing();
 }
 
-void Game::Dispose()
-{
-    // Save best score to json
-
-    // Destroy objects
-
-    // Unload resources
-    m_dinoTexture.Unload();
-    m_obstacleTexture.Unload();
-    m_groundTexture.Unload();
-}
-
 void Game::HandleInput()
 {
-    // TODO: Set input value based on time when the key is down, clamp to 0.5 - 1.0
     if (IsKeyDown(KEY_SPACE))
     {
         if (m_jumping)
@@ -133,6 +123,7 @@ void Game::HandleInput()
             return;
         }
 
+        m_player->SetState(PlayerState::Jump);
         m_jumpStartTime = GetTime();
         m_jumping = true;
     }
@@ -145,7 +136,7 @@ void Game::UpdatePlayerJump()
         return;
     }
 
-    const float groundPos = m_screenHeight - m_dinoTexture.GetHeight() - m_groundOffset;
+    const float groundPos = m_screenHeight - m_player->GetHeight() - m_groundOffset;
     const float jumpDuration = m_gameSettings.PlayerSettings.JumpDuration;
 
     const float elapsedTime = GetTime() - m_jumpStartTime;
@@ -166,6 +157,7 @@ void Game::UpdatePlayerJump()
     }
     else
     {
+        m_player->SetState(PlayerState::Run);
         m_player->SetPosition({m_player->GetPosition().x, groundPos});
         m_jumping = false;
     }

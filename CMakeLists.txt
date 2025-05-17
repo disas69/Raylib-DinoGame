@@ -30,6 +30,8 @@ include_directories(${RAYLIB_PATH}/include include)
 add_executable(${PROJECT_NAME} src/main.cpp
         src/game/Game.cpp
         src/misc/easing.cpp
+        src/game/AssetManager.cpp
+        src/game/Player.cpp
 )
 
 if (WIN32)

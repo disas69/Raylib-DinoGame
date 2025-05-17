@@ -1,7 +1,9 @@
 ﻿#pragma once
 
+#include "AssetManager.h"
 #include "framework/GameBase.h"
 #include "framework/SpriteObject.h"
+#include "game/Player.h"
 #include "Settings.h"
 #include <vector>
 #include <memory>
@@ -22,13 +24,10 @@ private:
     void HandleInput();
     void UpdatePlayerJump();
 
+    AssetManager m_assetManager;
     raylib::Camera2D m_camera;
 
-    raylib::Texture m_dinoTexture;
-    raylib::Texture m_obstacleTexture;
-    raylib::Texture m_groundTexture;
-
-    std::unique_ptr<SpriteObject> m_player = nullptr;
+    std::unique_ptr<Player> m_player = nullptr;
     std::vector<std::unique_ptr<SpriteObject>> m_obstacles = {};
     std::vector<std::unique_ptr<SpriteObject>> m_grounds = {};
 
