@@ -3,6 +3,7 @@
 #include "framework/SpriteAnimation.h"
 #include "framework/SpriteObject.h"
 
+struct GameSettings;
 class AssetManager;
 
 enum class PlayerState : char
@@ -17,9 +18,11 @@ enum class PlayerState : char
 class Player : public SpriteObject
 {
 public:
-    explicit Player(raylib::Texture* texture, AssetManager* assetManager);
+    explicit Player(raylib::Texture* texture, AssetManager* assetManager, GameSettings* gameSettings);
 
     void Update(float deltaTime);
+    void LateUpdate(float deltaTime);
+
     PlayerState GetState() const { return m_state; }
     void SetState(PlayerState state);
 
@@ -27,5 +30,12 @@ private:
     SpriteAnimation m_idleAnimation;
     SpriteAnimation m_runAnimation;
 
+    AssetManager* m_assetManager = nullptr;
+    GameSettings* m_gameSettings = nullptr;
+
     PlayerState m_state = PlayerState::None;
+    float m_jumpStartTime = 0.0f;
+
+    void HandleInput();
+    void UpdateJumpState();
 };

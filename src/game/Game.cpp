@@ -1,5 +1,4 @@
 ﻿#include "game/Game.h"
-#include "misc/easing.h"
 
 namespace GameConfig
 {
@@ -12,20 +11,19 @@ void Game::Initialize()
     // Load resources
     m_assetManager.LoadAssets();
 
-    m_screenWidth = GetScreenWidth();
-    m_screenHeight = GetScreenHeight();
-
     // TODO: Load json and apply settings
     m_gameSettings = GameSettings();
+    m_gameSettings.ScreenWidth = m_screenWidth;
+    m_gameSettings.ScreenHeight = m_screenHeight;
 
     // Create game objects
-    m_camera.SetOffset({m_screenWidth / 2.0f - m_cameraXOffset, m_screenHeight / 2.0f - m_cameraYOffset});
+    m_camera.SetOffset({m_screenWidth / 2.0f - m_gameSettings.CameraXOffset, m_screenHeight / 2.0f - m_gameSettings.CameraYOffset});
     m_camera.SetRotation(0.f);
     m_camera.SetZoom(0.8f);
 
-    m_player = std::make_unique<Player>(m_assetManager.GetTexture("dino"), &m_assetManager);
-    m_player->SetPosition({m_playerStartOffset, m_screenHeight - m_player->GetHeight() - m_groundOffset});
-    m_player->SetState(PlayerState::Run);
+    m_player = std::make_unique<Player>(m_assetManager.GetTexture("dino"), &m_assetManager, &m_gameSettings);
+    m_player->SetPosition({m_gameSettings.Player.StartOffset, m_screenHeight - m_player->GetHeight() - m_gameSettings.Player.GroundOffset});
+    m_player->SetState(PlayerState::Idle);
 
     m_obstacles = std::vector<std::unique_ptr<SpriteObject>>(GameConfig::OBSTACLE_POOL_SIZE);
     for (int i = 0; i < GameConfig::OBSTACLE_POOL_SIZE; ++i)
@@ -38,7 +36,7 @@ void Game::Initialize()
     for (int i = 0; i < GameConfig::GROUND_POOL_SIZE; ++i)
     {
         m_grounds[i] = std::make_unique<SpriteObject>(m_assetManager.GetTexture("ground"));
-        m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_grounds[i]->GetHeight() - m_groundOffset});
+        m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_grounds[i]->GetHeight() - m_gameSettings.Player.GroundOffset});
     }
 
     // TODO: Load best score from json
@@ -57,20 +55,22 @@ void Game::Dispose()
 
 void Game::UpdateGame(float deltaTime)
 {
-    HandleInput();
-    UpdatePlayerJump();
+    // Start the game
+    if (IsKeyDown(KEY_SPACE) && m_player->GetState() == PlayerState::Idle)
+    {
+        m_player->SetState(PlayerState::Run);
+    }
 
     // Update game objects
-    const float speed = m_gameSettings.PlayerSettings.MovementSpeed;
-    m_player->SetPosition({m_player->GetPosition().x + speed * deltaTime, m_player->GetPosition().y});
+    m_player->Update(deltaTime);
 
     Vector2 playerPos = m_player->GetPosition();
     auto& currentGround = m_grounds[m_groundIndex];
-    if (currentGround->GetPosition().x < playerPos.x - m_playerStartOffset)
+    if (currentGround->GetPosition().x < playerPos.x - m_gameSettings.Player.StartOffset)
     {
         m_groundIndex = (m_groundIndex + 1) % GameConfig::GROUND_POOL_SIZE;
         auto& nextGround = m_grounds[m_groundIndex];
-        nextGround->SetPosition({currentGround->GetPosition().x + currentGround->GetRectangle().width, m_screenHeight - nextGround->GetHeight() - m_groundOffset});
+        nextGround->SetPosition({currentGround->GetPosition().x + currentGround->GetRectangle().width, m_screenHeight - nextGround->GetHeight() - m_gameSettings.Player.GroundOffset});
     }
 
     // TODO: Activate and update obstacles position based on total distance passed
@@ -78,13 +78,13 @@ void Game::UpdateGame(float deltaTime)
 
     // TODO: Check collisions
 
-    // Update states and animations
-    m_player->Update(deltaTime);
+    // Update animations
+    m_player->LateUpdate(deltaTime);
 
     // TODO: Update score
 
     // Update camera
-    const float groundPos = m_screenHeight - m_player->GetHeight() - m_groundOffset;
+    const float groundPos = m_screenHeight - m_player->GetHeight() - m_gameSettings.Player.GroundOffset;
     const Vector2 camFollowPos = {playerPos.x, groundPos};
     m_camera.SetTarget(camFollowPos);
 }
@@ -112,53 +112,4 @@ void Game::DrawGame(raylib::Window& window)
     // TODO: Draw UI
 
     window.EndDrawing();
-}
-
-void Game::HandleInput()
-{
-    if (IsKeyDown(KEY_SPACE))
-    {
-        if (m_jumping)
-        {
-            return;
-        }
-
-        m_player->SetState(PlayerState::Jump);
-        m_jumpStartTime = GetTime();
-        m_jumping = true;
-    }
-}
-
-void Game::UpdatePlayerJump()
-{
-    if (!m_jumping)
-    {
-        return;
-    }
-
-    const float groundPos = m_screenHeight - m_player->GetHeight() - m_groundOffset;
-    const float jumpDuration = m_gameSettings.PlayerSettings.JumpDuration;
-
-    const float elapsedTime = GetTime() - m_jumpStartTime;
-    const float t = Clamp(elapsedTime / jumpDuration, 0.0f, 1.0f);
-    if (t < 0.5f)
-    {
-        const float targetPos = groundPos - m_gameSettings.PlayerSettings.JumpHeightMax;
-        const float t1 = Remap(t, 0.0, 0.5f, 0.06f, 1.0f);
-        const float lerpPos = Lerp(groundPos, targetPos, easeOutQuad(t1));
-        m_player->SetPosition({m_player->GetPosition().x, lerpPos});
-    }
-    else if (t < 1.0f)
-    {
-        const float startPos = groundPos - m_gameSettings.PlayerSettings.JumpHeightMax;
-        const float t2 = Remap(t, 0.5f, 1.0f, 0.0f, 1.0f);
-        const float lerpPos = Lerp(startPos, groundPos, easeInQuad(t2));
-        m_player->SetPosition({m_player->GetPosition().x, lerpPos});
-    }
-    else
-    {
-        m_player->SetState(PlayerState::Run);
-        m_player->SetPosition({m_player->GetPosition().x, groundPos});
-        m_jumping = false;
-    }
 }
