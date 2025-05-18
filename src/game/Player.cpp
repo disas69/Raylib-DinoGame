@@ -7,7 +7,7 @@ Player::Player(raylib::Texture* texture, AssetManager* assetManager, GameSetting
     m_assetManager(assetManager), m_gameSettings(gameSettings)
 {
     m_idleAnimation.AddFrame(texture);
-    m_idleAnimation.SetFrameTime(1.0f);
+    m_idleAnimation.SetFrameTime(0.1f);
     m_idleAnimation.SetLooping(false);
 
     m_runAnimation.AddFrame(assetManager->GetTexture("dino_run_1"));
@@ -18,7 +18,7 @@ Player::Player(raylib::Texture* texture, AssetManager* assetManager, GameSetting
 
 void Player::Update(float deltaTime)
 {
-    if (m_state == PlayerState::None || m_state == PlayerState::Idle || m_state == PlayerState::Dead)
+    if (!IsActive() || m_state == PlayerState::None || m_state == PlayerState::Idle || m_state == PlayerState::Dead)
     {
         return;
     }
@@ -30,12 +30,20 @@ void Player::Update(float deltaTime)
         UpdateJumpState();
     }
 
-    const float speed = m_gameSettings->Player.MovementSpeed;
-    SetPosition({GetPosition().x + speed * deltaTime, GetPosition().y});
+    if (m_isMoving)
+    {
+        const float speed = m_gameSettings->Player.MovementSpeed;
+        SetPosition({GetPosition().x + speed * deltaTime, GetPosition().y});
+    }
 }
 
 void Player::LateUpdate(float deltaTime)
 {
+    if (!IsActive())
+    {
+        return;
+    }
+
     if (m_state == PlayerState::Idle || m_state == PlayerState::Jump)
     {
         m_idleAnimation.Update(deltaTime);
@@ -54,28 +62,39 @@ void Player::SetState(PlayerState state)
     {
         m_state = state;
 
-        if (m_state == PlayerState::Idle || m_state == PlayerState::Jump)
+        if (m_state == PlayerState::Idle)
+        {
+            StopMoving();
+            m_idleAnimation.Play();
+        }
+        else if (m_state == PlayerState::Jump)
         {
             m_idleAnimation.Play();
         }
         else if (m_state == PlayerState::Run)
         {
+            StartMoving();
             m_runAnimation.Play();
         }
     }
+}
+
+void Player::Jump()
+{
+    if (m_state == PlayerState::Jump)
+    {
+        return;
+    }
+
+    m_jumpStartTime = GetTime();
+    SetState(PlayerState::Jump);
 }
 
 void Player::HandleInput()
 {
     if (IsKeyDown(KEY_SPACE))
     {
-        if (m_state == PlayerState::Jump)
-        {
-            return;
-        }
-
-        m_jumpStartTime = GetTime();
-        SetState(PlayerState::Jump);
+        Jump();
     }
 }
 

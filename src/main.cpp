@@ -3,14 +3,14 @@
 
 int main()
 {
-    constexpr int screenWidth = 900;
-    constexpr int screenHeight = 400;
+    const GameSettings settings;
 
-    raylib::Window window(screenWidth, screenHeight, "Dino Run");
+    raylib::Window window(settings.ScreenWidth, settings.ScreenHeight, settings.Name);
     window.SetState(FLAG_VSYNC_HINT);
     window.SetTargetFPS(60);
 
-    Game game;
+    Game game(settings);
+
     while (!window.ShouldClose() && !game.ShouldClose())
     {
         game.UpdateGame(window.GetFrameTime());

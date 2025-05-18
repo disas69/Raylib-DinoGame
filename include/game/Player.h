@@ -26,6 +26,11 @@ public:
     PlayerState GetState() const { return m_state; }
     void SetState(PlayerState state);
 
+    void StartMoving() { m_isMoving = true; }
+    void StopMoving() { m_isMoving = false; }
+
+    void Jump();
+
 private:
     SpriteAnimation m_idleAnimation;
     SpriteAnimation m_runAnimation;
@@ -35,6 +40,7 @@ private:
 
     PlayerState m_state = PlayerState::None;
     float m_jumpStartTime = 0.0f;
+    bool m_isMoving = false;
 
     void HandleInput();
     void UpdateJumpState();

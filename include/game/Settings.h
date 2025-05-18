@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <string>
+
 struct PlayerSettings
 {
     float MovementSpeed = 650.f;
@@ -14,8 +16,9 @@ struct GameSettings
 {
     PlayerSettings Player;
 
-    int ScreenWidth = 0;
-    int ScreenHeight = 0;
+    std::string Name = "Dino Run";
+    int ScreenWidth = 900;
+    int ScreenHeight = 400;
     float CameraXOffset = 380.0f;
     float CameraYOffset = -30.0f;
 };
