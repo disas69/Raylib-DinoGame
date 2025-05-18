@@ -1,20 +1,14 @@
 ﻿#pragma once
 
+#include "GameState.h"
 #include "AssetManager.h"
 #include "framework/GameBase.h"
 #include "framework/SpriteObject.h"
-#include "game/Player.h"
+#include "Player.h"
 #include "Settings.h"
+#include "UIManager.h"
 #include <vector>
 #include <memory>
-
-enum class GameState : char
-{
-    None = -1,
-    Start = 0,
-    Play = 1,
-    GameOver = 2,
-};
 
 class Game : public framework::GameBase
 {
@@ -28,6 +22,7 @@ public:
 private:
     GameSettings m_gameSettings;
     AssetManager m_assetManager;
+    UIManager m_uiManager;
 
     raylib::Camera2D m_camera;
     std::unique_ptr<Player> m_player = nullptr;
@@ -35,6 +30,8 @@ private:
     std::vector<std::unique_ptr<SpriteObject>> m_grounds = {};
 
     GameState m_gameState = GameState::None;
+    int m_score = 0;
+    int m_bestScore = 0;
     int m_groundIndex = 0;
 
     void Initialize();

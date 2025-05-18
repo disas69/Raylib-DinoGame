@@ -34,6 +34,8 @@ void Game::Initialize()
         m_grounds[i]->SetActive(false);
     }
 
+    m_uiManager.Initialize(m_assetManager.GetFont("main"), m_gameSettings.ScreenWidth, m_gameSettings.ScreenHeight);
+
     // TODO: Load best score from json
 
     SetGameState(GameState::Start);
@@ -42,7 +44,6 @@ void Game::Initialize()
 void Game::Dispose()
 {
     // TODO: Save best score to json
-    // TODO: Destroy objects
 
     // Unload all resources
     m_assetManager.UnloadAssets();
@@ -59,6 +60,8 @@ void Game::SetGameState(GameState state)
 
     if (m_gameState == GameState::Start)
     {
+        m_score = 0;
+
         m_player->SetActive(true);
         m_player->SetState(PlayerState::Idle);
         m_player->SetPosition({m_gameSettings.Player.StartOffset, m_screenHeight - m_player->GetHeight() - m_gameSettings.Player.GroundOffset});
@@ -68,20 +71,16 @@ void Game::SetGameState(GameState state)
             m_grounds[i]->SetActive(true);
             m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_grounds[i]->GetHeight() - m_gameSettings.Player.GroundOffset});
         }
-
-        // TODO: Show start screen
     }
     else if (m_gameState == GameState::Play)
     {
-        m_player->Jump();
-
         // TODO: Start game, show game screen
+        m_player->Jump();
     }
     else if (m_gameState == GameState::GameOver)
     {
-        m_player->SetState(PlayerState::Dead);
-
         // TODO: Stop game, show game over screen
+        m_player->SetState(PlayerState::Dead);
     }
 }
 
@@ -153,7 +152,8 @@ void Game::DrawGame(raylib::Window& window)
     m_player->Draw();
     m_camera.EndMode();
 
-    // TODO: Draw UI
+    // Draw UI
+    m_uiManager.Draw(m_gameState, m_score, m_bestScore);
 
     window.EndDrawing();
 }

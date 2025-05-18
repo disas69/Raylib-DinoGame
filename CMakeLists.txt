@@ -27,11 +27,13 @@ endif()
 set(RAYLIB_PATH ${PROJECT_SOURCE_DIR}/raylib)
 include_directories(${RAYLIB_PATH}/include include)
 
-add_executable(${PROJECT_NAME} src/main.cpp
-        src/game/Game.cpp
+add_executable(${PROJECT_NAME}
+        src/main.cpp
         src/misc/easing.cpp
+        src/game/Game.cpp
         src/game/AssetManager.cpp
         src/game/Player.cpp
+        src/game/UIManager.cpp
 )
 
 if (WIN32)
