@@ -8,6 +8,7 @@ void AssetManager::LoadAssets()
     m_textures["dino_run_2"] = raylib::Texture(TEXTURES_PATH "Dino_Run02.png");
     m_textures["cactus"] = raylib::Texture(TEXTURES_PATH "Cactus_Small_Single.png");
     m_textures["ground"] = raylib::Texture(TEXTURES_PATH "Ground.png");
+    m_textures["retry"] = raylib::Texture(TEXTURES_PATH "Retry.png");
 
     // Load fonts
     m_fonts["main"] = raylib::Font(FONTS_PATH "PublicPixel.ttf");

@@ -34,7 +34,7 @@ void Game::Initialize()
         m_grounds[i]->SetActive(false);
     }
 
-    m_uiManager.Initialize(m_assetManager.GetFont("main"), m_gameSettings.ScreenWidth, m_gameSettings.ScreenHeight);
+    m_uiManager.Initialize(m_assetManager.GetFont("main"), m_assetManager.GetTexture("retry"), m_gameSettings.ScreenWidth, m_gameSettings.ScreenHeight);
 
     // TODO: Load best score from json
 
@@ -71,11 +71,13 @@ void Game::SetGameState(GameState state)
             m_grounds[i]->SetActive(true);
             m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_grounds[i]->GetHeight() - m_gameSettings.Player.GroundOffset});
         }
+
+        m_uiManager.Reset();
     }
     else if (m_gameState == GameState::Play)
     {
-        // TODO: Start game, show game screen
         m_player->Jump();
+        m_uiManager.PlayStartAnimation();
     }
     else if (m_gameState == GameState::GameOver)
     {
@@ -86,6 +88,12 @@ void Game::SetGameState(GameState state)
 
 void Game::UpdateGame(float deltaTime)
 {
+    // Debug, remove later
+    if (IsKeyPressed(KEY_G))
+    {
+        SetGameState(GameState::GameOver);
+    }
+
     if (m_gameState == GameState::Start)
     {
         // Start the game
@@ -119,7 +127,7 @@ void Game::UpdateGame(float deltaTime)
     else if (m_gameState == GameState::GameOver)
     {
         // Restart the game
-        if (IsKeyDown(KEY_SPACE))
+        if (IsKeyDown(KEY_SPACE) || m_uiManager.ShouldRestart())
         {
             SetGameState(GameState::Start);
             SetGameState(GameState::Play);
@@ -130,6 +138,9 @@ void Game::UpdateGame(float deltaTime)
     const float groundPos = m_screenHeight - m_player->GetHeight() - m_gameSettings.Player.GroundOffset;
     const Vector2 camFollowPos = {m_player->GetPosition().x, groundPos};
     m_camera.SetTarget(camFollowPos);
+
+    // Update UI
+    m_uiManager.Update(deltaTime);
 }
 
 void Game::DrawGame(raylib::Window& window)
