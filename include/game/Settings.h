@@ -15,8 +15,8 @@ struct PlayerSettings
 struct ObstacleSettings
 {
     int Offset = 1000;
-    int MinSpawnDistance = 300;
-    int MaxSpawnDistance = 900;
+    int MinSpawnDistance = 350;
+    int MaxSpawnDistance = 950;
 };
 
 struct GameSettings

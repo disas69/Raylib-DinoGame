@@ -23,6 +23,13 @@ public:
         m_frames.push_back(frame);
     }
 
+    void ClearFrames()
+    {
+        m_frames.clear();
+        m_currentFrame = 0;
+        m_currentTime = 0.0f;
+    }
+
     void SetFrameTime(float frameTime)
     {
         m_frameTime = frameTime;

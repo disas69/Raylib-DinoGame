@@ -34,6 +34,7 @@ private:
     int m_score = 0;
     int m_bestScore = 0;
     int m_groundIndex = 0;
+    int m_obstacleOffset = 0;
 
     void Initialize();
     void Dispose();

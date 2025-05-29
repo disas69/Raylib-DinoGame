@@ -15,7 +15,7 @@ Player::Player(raylib::Texture* texture, AssetManager* assetManager, GameSetting
     m_runAnimation.SetFrameTime(0.1f);
     m_runAnimation.SetLooping(true);
 
-    SetRectOffsets(40.f, 30.f);
+    SetRectOffsets(45.f, 35.f);
 }
 
 void Player::Update(float deltaTime)

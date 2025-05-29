@@ -23,7 +23,7 @@ void Game::Initialize()
     m_obstacles = std::vector<std::unique_ptr<Obstacle>>(GameConfig::OBSTACLE_POOL_SIZE);
     for (int i = 0; i < GameConfig::OBSTACLE_POOL_SIZE; ++i)
     {
-        m_obstacles[i] = std::make_unique<Obstacle>(m_assetManager.GetTexture("cactus"), nullptr);
+        m_obstacles[i] = std::make_unique<Obstacle>(m_assetManager.GetTexture("cactus_small_1"));
         m_obstacles[i]->SetActive(false);
     }
 
@@ -68,19 +68,19 @@ void Game::SetGameState(GameState state)
 
         for (int i = 0; i < m_grounds.size(); ++i)
         {
-            m_grounds[i]->SetActive(true);
             m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_grounds[i]->GetHeight() - m_gameSettings.Player.GroundOffset});
+            m_grounds[i]->SetActive(true);
         }
 
-        int obstacleOffset = m_gameSettings.Obstacle.Offset;
-        int obstacleMinDistance = m_gameSettings.Obstacle.MinSpawnDistance;
-        int obstacleMaxDistance = m_gameSettings.Obstacle.MaxSpawnDistance;
+        m_obstacleOffset = m_gameSettings.Obstacle.Offset;
+        const int obstacleMinDistance = m_gameSettings.Obstacle.MinSpawnDistance;
+        const int obstacleMaxDistance = m_gameSettings.Obstacle.MaxSpawnDistance;
 
         for (auto& obstacle : m_obstacles)
         {
+            m_obstacleOffset += GetRandomValue(obstacleMinDistance, obstacleMaxDistance);
+            Obstacle::SetupObstacle(obstacle, m_obstacleOffset, m_screenHeight, m_gameSettings, m_assetManager);
             obstacle->SetActive(true);
-            obstacleOffset += GetRandomValue(obstacleMinDistance, obstacleMaxDistance);
-            obstacle->SetPosition({static_cast<float>(obstacleOffset), m_screenHeight - obstacle->GetHeight() - m_gameSettings.Player.GroundOffset});
         }
 
         m_uiManager.Reset();
@@ -120,8 +120,6 @@ void Game::UpdateGame(float deltaTime)
             nextGround->SetPosition({currentGround->GetPosition().x + currentGround->GetRectangle().width, m_screenHeight - nextGround->GetHeight() - m_gameSettings.Player.GroundOffset});
         }
 
-        // TODO: Activate and update obstacles position based on total distance passed
-
         for (const auto& obstacle : m_obstacles)
         {
             if (obstacle->IsActive())
@@ -134,9 +132,27 @@ void Game::UpdateGame(float deltaTime)
             }
         }
 
-        // TODO: Update score
+        for (auto& obstacle : m_obstacles)
+        {
+            if (obstacle->IsActive())
+            {
+                if (obstacle->GetPosition().x <= playerPos.x - m_gameSettings.Player.StartOffset - 100)
+                {
+                    const int obstacleMinDistance = m_gameSettings.Obstacle.MinSpawnDistance;
+                    const int obstacleMaxDistance = m_gameSettings.Obstacle.MaxSpawnDistance;
 
-        // TODO: Deactivate passed obstacles
+                    m_obstacleOffset += GetRandomValue(obstacleMinDistance, obstacleMaxDistance);
+                    Obstacle::SetupObstacle(obstacle, m_obstacleOffset, m_screenHeight, m_gameSettings, m_assetManager);
+                }
+            }
+        }
+
+        // Update score
+        m_score = static_cast<int>((playerPos.x - m_gameSettings.Player.StartOffset) * 0.015f);
+        if (m_score > m_bestScore)
+        {
+            m_bestScore = m_score;
+        }
 
         // Update animations
         m_player->LateUpdate(deltaTime);
@@ -149,7 +165,7 @@ void Game::UpdateGame(float deltaTime)
     else if (m_gameState == GameState::GameOver)
     {
         // Restart the game
-        if (IsKeyDown(KEY_SPACE) || m_uiManager.ShouldRestart())
+        if (IsKeyPressed(KEY_SPACE) || m_uiManager.ShouldRestart())
         {
             SetGameState(GameState::Start);
             SetGameState(GameState::Play);

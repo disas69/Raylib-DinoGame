@@ -6,7 +6,14 @@ void AssetManager::LoadAssets()
     m_textures["dino"] = raylib::Texture(TEXTURES_PATH "Dino_Idle.png");
     m_textures["dino_run_1"] = raylib::Texture(TEXTURES_PATH "Dino_Run01.png");
     m_textures["dino_run_2"] = raylib::Texture(TEXTURES_PATH "Dino_Run02.png");
-    m_textures["cactus"] = raylib::Texture(TEXTURES_PATH "Cactus_Small_Single.png");
+    m_textures["cactus_small_1"] = raylib::Texture(TEXTURES_PATH "Cactus_Small_Single.png");
+    m_textures["cactus_small_2"] = raylib::Texture(TEXTURES_PATH "Cactus_Small_Double.png");
+    m_textures["cactus_small_3"] = raylib::Texture(TEXTURES_PATH "Cactus_Small_Triple.png");
+    m_textures["cactus_large_1"] = raylib::Texture(TEXTURES_PATH "Cactus_Large_Single.png");
+    m_textures["cactus_large_2"] = raylib::Texture(TEXTURES_PATH "Cactus_Large_Double.png");
+    m_textures["cactus_large_3"] = raylib::Texture(TEXTURES_PATH "Cactus_Large_Triple.png");
+    m_textures["bird_1"] = raylib::Texture(TEXTURES_PATH "Bird_01.png");
+    m_textures["bird_2"] = raylib::Texture(TEXTURES_PATH "Bird_02.png");
     m_textures["ground"] = raylib::Texture(TEXTURES_PATH "Ground.png");
     m_textures["retry"] = raylib::Texture(TEXTURES_PATH "Retry.png");
 
