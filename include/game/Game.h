@@ -39,4 +39,6 @@ private:
     void Initialize();
     void Dispose();
     void SetGameState(GameState state);
+    void LoadData();
+    void SaveData();
 };

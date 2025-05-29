@@ -36,14 +36,13 @@ void Game::Initialize()
 
     m_uiManager.Initialize(m_assetManager.GetFont("main"), m_assetManager.GetTexture("retry"), m_gameSettings.ScreenWidth, m_gameSettings.ScreenHeight);
 
-    // TODO: Load best score from json
-
+    LoadData();
     SetGameState(GameState::Start);
 }
 
 void Game::Dispose()
 {
-    // TODO: Save best score to json
+    SaveData();
 
     // Unload all resources
     m_assetManager.UnloadAssets();
@@ -94,6 +93,34 @@ void Game::SetGameState(GameState state)
     {
         m_player->SetState(PlayerState::Dead);
     }
+}
+
+void Game::LoadData()
+{
+    char* saveData = LoadFileText("save_data.txt");
+    if (saveData != nullptr)
+    {
+        std::string dataStr(saveData);
+        UnloadFileText(saveData);
+
+        // Parse the data
+        size_t pos = dataStr.find("BestScore:");
+        if (pos != std::string::npos)
+        {
+            pos += 10;
+            m_bestScore = std::stoi(dataStr.substr(pos));
+        }
+    }
+    else
+    {
+        m_bestScore = 0;
+    }
+}
+
+void Game::SaveData()
+{
+    const char* saveData = TextFormat("BestScore:%d", m_bestScore);
+    SaveFileText("save_data.txt", const_cast<char*>(saveData));
 }
 
 void Game::UpdateGame(float deltaTime)
