@@ -14,6 +14,8 @@ Player::Player(raylib::Texture* texture, AssetManager* assetManager, GameSetting
     m_runAnimation.AddFrame(assetManager->GetTexture("dino_run_2"));
     m_runAnimation.SetFrameTime(0.1f);
     m_runAnimation.SetLooping(true);
+
+    SetRectOffsets(40.f, 30.f);
 }
 
 void Player::Update(float deltaTime)

@@ -20,10 +20,10 @@ void Game::Initialize()
     m_player = std::make_unique<Player>(m_assetManager.GetTexture("dino"), &m_assetManager, &m_gameSettings);
     m_player->SetActive(false);
 
-    m_obstacles = std::vector<std::unique_ptr<SpriteObject>>(GameConfig::OBSTACLE_POOL_SIZE);
+    m_obstacles = std::vector<std::unique_ptr<Obstacle>>(GameConfig::OBSTACLE_POOL_SIZE);
     for (int i = 0; i < GameConfig::OBSTACLE_POOL_SIZE; ++i)
     {
-        m_obstacles[i] = std::make_unique<SpriteObject>(m_assetManager.GetTexture("cactus"));
+        m_obstacles[i] = std::make_unique<Obstacle>(m_assetManager.GetTexture("cactus"), nullptr);
         m_obstacles[i]->SetActive(false);
     }
 
@@ -66,10 +66,21 @@ void Game::SetGameState(GameState state)
         m_player->SetState(PlayerState::Idle);
         m_player->SetPosition({m_gameSettings.Player.StartOffset, m_screenHeight - m_player->GetHeight() - m_gameSettings.Player.GroundOffset});
 
-        for (int i = 0; i < GameConfig::GROUND_POOL_SIZE; ++i)
+        for (int i = 0; i < m_grounds.size(); ++i)
         {
             m_grounds[i]->SetActive(true);
             m_grounds[i]->SetPosition({i * m_grounds[i]->GetRectangle().width, m_screenHeight - m_grounds[i]->GetHeight() - m_gameSettings.Player.GroundOffset});
+        }
+
+        int obstacleOffset = m_gameSettings.Obstacle.Offset;
+        int obstacleMinDistance = m_gameSettings.Obstacle.MinSpawnDistance;
+        int obstacleMaxDistance = m_gameSettings.Obstacle.MaxSpawnDistance;
+
+        for (auto& obstacle : m_obstacles)
+        {
+            obstacle->SetActive(true);
+            obstacleOffset += GetRandomValue(obstacleMinDistance, obstacleMaxDistance);
+            obstacle->SetPosition({static_cast<float>(obstacleOffset), m_screenHeight - obstacle->GetHeight() - m_gameSettings.Player.GroundOffset});
         }
 
         m_uiManager.Reset();
@@ -81,19 +92,12 @@ void Game::SetGameState(GameState state)
     }
     else if (m_gameState == GameState::GameOver)
     {
-        // TODO: Stop game, show game over screen
         m_player->SetState(PlayerState::Dead);
     }
 }
 
 void Game::UpdateGame(float deltaTime)
 {
-    // Debug, remove later
-    if (IsKeyPressed(KEY_G))
-    {
-        SetGameState(GameState::GameOver);
-    }
-
     if (m_gameState == GameState::Start)
     {
         // Start the game
@@ -117,12 +121,30 @@ void Game::UpdateGame(float deltaTime)
         }
 
         // TODO: Activate and update obstacles position based on total distance passed
+
+        for (const auto& obstacle : m_obstacles)
+        {
+            if (obstacle->IsActive())
+            {
+                if (CheckCollisionRecs(m_player->GetRectangle(), obstacle->GetRectangle()))
+                {
+                    SetGameState(GameState::GameOver);
+                    break;
+                }
+            }
+        }
+
         // TODO: Update score
+
         // TODO: Deactivate passed obstacles
-        // TODO: Check collisions
 
         // Update animations
         m_player->LateUpdate(deltaTime);
+
+        for (const auto& obstacle : m_obstacles)
+        {
+            obstacle->LateUpdate(deltaTime);
+        }
     }
     else if (m_gameState == GameState::GameOver)
     {

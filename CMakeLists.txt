@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME}
         src/game/AssetManager.cpp
         src/game/Player.cpp
         src/game/UIManager.cpp
+        src/game/Obstacle.cpp
 )
 
 if (WIN32)

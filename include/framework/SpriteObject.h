@@ -31,6 +31,12 @@ public:
         return m_texture->GetHeight();
     }
 
+    void SetRectOffsets(float widthOffset, float heightOffset)
+    {
+        m_widthOffset = widthOffset;
+        m_heightOffset = heightOffset;
+    }
+
     void Draw() const override
     {
         if (!m_isActive)
@@ -38,14 +44,11 @@ public:
             return;
         }
 
+#if DRAW_DEBUG_RECT
+        DrawRectangleRec(GetRectangle(), BLUE);
+#endif
         if (m_texture != nullptr)
         {
-#if DRAW_DEBUG_RECT
-            const float width = static_cast<float>(m_texture->GetWidth());
-            const float height = static_cast<float>(m_texture->GetHeight());
-            const Vector2 origin = {width / 2, height / 2};
-            DrawRectanglePro(GetRectangle(), origin, m_rotation, BLUE);
-#endif
             m_texture->Draw(m_position, m_rotation, 1.0f, m_color);
         }
     }
@@ -56,7 +59,7 @@ public:
         {
             const float width = static_cast<float>(m_texture->GetWidth());
             const float height = static_cast<float>(m_texture->GetHeight());
-            return {m_position.x + width / 2, m_position.y + height / 2, width, height};
+            return {m_position.x + m_widthOffset / 2, m_position.y + m_heightOffset / 2, width - m_widthOffset, height - m_heightOffset};
         }
 
         return {0, 0, 0, 0};
@@ -64,4 +67,6 @@ public:
 
 private:
     raylib::Texture* m_texture = nullptr;
+    float m_widthOffset = 0.0f;
+    float m_heightOffset = 0.0f;
 };

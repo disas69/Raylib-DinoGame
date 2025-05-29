@@ -12,9 +12,17 @@ struct PlayerSettings
     float GroundOffset = 50.0f;
 };
 
+struct ObstacleSettings
+{
+    int Offset = 1000;
+    int MinSpawnDistance = 300;
+    int MaxSpawnDistance = 900;
+};
+
 struct GameSettings
 {
     PlayerSettings Player;
+    ObstacleSettings Obstacle;
 
     std::string Name = "Dino Run";
     int ScreenWidth = 900;

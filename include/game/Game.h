@@ -2,6 +2,7 @@
 
 #include "GameState.h"
 #include "AssetManager.h"
+#include "Obstacle.h"
 #include "framework/GameBase.h"
 #include "framework/SpriteObject.h"
 #include "Player.h"
@@ -26,7 +27,7 @@ private:
 
     raylib::Camera2D m_camera;
     std::unique_ptr<Player> m_player = nullptr;
-    std::vector<std::unique_ptr<SpriteObject>> m_obstacles = {};
+    std::vector<std::unique_ptr<Obstacle>> m_obstacles = {};
     std::vector<std::unique_ptr<SpriteObject>> m_grounds = {};
 
     GameState m_gameState = GameState::None;
