@@ -1,15 +1,10 @@
 ﻿#include "game/Game.h"
 
-namespace GameConfig
-{
-int OBSTACLE_POOL_SIZE = 10;
-int GROUND_POOL_SIZE = 2;
-}
-
 void Game::Initialize()
 {
     // Load all resources
     m_assetManager.LoadAssets();
+    LoadData();
 
     // Setup camera
     m_camera.SetOffset({m_screenWidth / 2.0f - m_gameSettings.CameraXOffset, m_screenHeight / 2.0f - m_gameSettings.CameraYOffset});
@@ -20,15 +15,15 @@ void Game::Initialize()
     m_player = std::make_unique<Player>(m_assetManager.GetTexture("dino"), &m_assetManager, &m_gameSettings);
     m_player->SetActive(false);
 
-    m_obstacles = std::vector<std::unique_ptr<Obstacle>>(GameConfig::OBSTACLE_POOL_SIZE);
-    for (int i = 0; i < GameConfig::OBSTACLE_POOL_SIZE; ++i)
+    m_obstacles = std::vector<std::unique_ptr<Obstacle>>(OBSTACLE_POOL_SIZE);
+    for (int i = 0; i < OBSTACLE_POOL_SIZE; ++i)
     {
         m_obstacles[i] = std::make_unique<Obstacle>(m_assetManager.GetTexture("cactus_small_1"));
         m_obstacles[i]->SetActive(false);
     }
 
-    m_grounds = std::vector<std::unique_ptr<SpriteObject>>(GameConfig::GROUND_POOL_SIZE);
-    for (int i = 0; i < GameConfig::GROUND_POOL_SIZE; ++i)
+    m_grounds = std::vector<std::unique_ptr<SpriteObject>>(GROUND_POOL_SIZE);
+    for (int i = 0; i < GROUND_POOL_SIZE; ++i)
     {
         m_grounds[i] = std::make_unique<SpriteObject>(m_assetManager.GetTexture("ground"));
         m_grounds[i]->SetActive(false);
@@ -36,7 +31,6 @@ void Game::Initialize()
 
     m_uiManager.Initialize(m_assetManager.GetFont("main"), m_assetManager.GetTexture("retry"), m_gameSettings.ScreenWidth, m_gameSettings.ScreenHeight);
 
-    LoadData();
     SetGameState(GameState::Start);
 }
 
@@ -142,7 +136,7 @@ void Game::UpdateGame(float deltaTime)
         std::unique_ptr<SpriteObject>& currentGround = m_grounds[m_groundIndex];
         if (currentGround->GetPosition().x < playerPos.x - m_gameSettings.Player.StartOffset)
         {
-            m_groundIndex = (m_groundIndex + 1) % GameConfig::GROUND_POOL_SIZE;
+            m_groundIndex = (m_groundIndex + 1) % GROUND_POOL_SIZE;
             std::unique_ptr<SpriteObject>& nextGround = m_grounds[m_groundIndex];
             nextGround->SetPosition({currentGround->GetPosition().x + currentGround->GetRectangle().width, m_screenHeight - nextGround->GetHeight() - m_gameSettings.Player.GroundOffset});
         }

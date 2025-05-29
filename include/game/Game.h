@@ -11,6 +11,9 @@
 #include <vector>
 #include <memory>
 
+#define OBSTACLE_POOL_SIZE 10
+#define GROUND_POOL_SIZE 2
+
 class Game : public framework::GameBase
 {
 public:
