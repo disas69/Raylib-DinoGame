@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.30)
 
 set(CMAKE_CXX_STANDARD 17)
-set(PROJECT_NAME DinoRun)
+set(PROJECT_NAME Dino)
 project(${PROJECT_NAME})
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

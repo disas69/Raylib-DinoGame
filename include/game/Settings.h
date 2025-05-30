@@ -24,7 +24,7 @@ struct GameSettings
     PlayerSettings Player;
     ObstacleSettings Obstacle;
 
-    std::string Name = "Dino Run";
+    std::string Name = "Dino";
     int ScreenWidth = 900;
     int ScreenHeight = 400;
     float CameraXOffset = 380.0f;
