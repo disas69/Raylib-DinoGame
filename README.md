@@ -2,7 +2,7 @@
 
 A simple replica of the chrome://dino game made with raylib.
 
-Ready to be built on Windows and MacOS.
+Supports Windows, MacOS and Linux.
 
 <img src="dino.png" width = "750">
 
