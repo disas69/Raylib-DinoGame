@@ -1,8 +1,6 @@
 # Raylib Dino Game
 
-A simple replica of the chrome://dino game made with raylib.
-
-Supports Windows, MacOS and Linux.
+A simple cross-platform replica of the chrome://dino game made with raylib.
 
 <img src="dino.png" width = "750">
 
