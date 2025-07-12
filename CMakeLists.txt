@@ -61,7 +61,7 @@ elseif (APPLE)
             ${COREVIDEO_LIBRARY}
             "-framework OpenGL"
     )
-elseif (UNIX AND NOT APPLE)
+elseif (UNIX)
     link_directories(${RAYLIB_PATH}/lib/linux)
     target_link_libraries(${PROJECT_NAME} ${RAYLIB_PATH}/lib/linux/libraylib.a)
 
